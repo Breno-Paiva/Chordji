@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Chordji — a browser ear-training and chord-theory game. Name the note you hear, pick out the notes in a chord, or build a chord from its name.">
+  <title>Chordji — ear training &amp; chord theory</title>
+
+  <link rel="icon" type="image/png" sizes="32x32" href="./images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="./images/favicon-16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="./images/apple-touch-icon.png">
+  <link rel="shortcut icon" href="./images/favicon.ico">
+
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://brenopaiva.com/Chordji/">
+  <meta property="og:title" content="Chordji — ear training &amp; chord theory">
+  <meta property="og:description" content="Name the note you hear, pick out the notes in a chord, or build a chord from its name.">
+  <meta property="og:image" content="https://brenopaiva.com/Chordji/images/chordji_og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Chordji — ear training &amp; chord theory">
+  <meta name="twitter:description" content="Name the note you hear, pick out the notes in a chord, or build a chord from its name.">
+  <meta name="twitter:image" content="https://brenopaiva.com/Chordji/images/chordji_og.png">
+
+  <link rel="stylesheet" href="./css/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css?family=Share+Tech+Mono" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=VT323" rel="stylesheet">
+</head>
+<body>
+
+  <nav class="site-nav">
+    <div class="nav-inner">
+      <span class="nav-brand">Chordji</span>
+      <a class="nav-back" href="https://brenopaiva.com/">&larr; brenopaiva.com</a>
+    </div>
+  </nav>
+
+  <header class="space-header">
+    <h1 class="text-header">CHORDJI</h1>
+    <p class="tagline">Ear training &amp; chord theory</p>
+  </header>
+
+  <button type="button" id="audio-notice" class="audio-notice hidden">
+    🔇 Sound is blocked — tap here to enable it
+  </button>
+
+  <main class="app">
+
+    <!-- ---------------- Setup ---------------- -->
+    <section id="screen-setup" class="screen">
+      <div class="panel">
+        <h2 class="panel-title">New session</h2>
+
+        <div class="field">
+          <span class="field-label" id="mode-label">Mode</span>
+          <div class="mode-group" id="mode-group" role="group" aria-labelledby="mode-label">
+            <button type="button" class="mode-btn" data-value="note">
+              <span class="mode-name">Name That Note</span>
+              <span class="mode-blurb">A reference tonic plays, then one note. Click the note you heard.</span>
+              <span class="mode-skill">Relative-pitch ear</span>
+            </button>
+            <button type="button" class="mode-btn" data-value="chordEar">
+              <span class="mode-name">Hear the Chord</span>
+              <span class="mode-blurb">A chord plays. Click every note in it.</span>
+              <span class="mode-skill">Chord ear</span>
+            </button>
+            <button type="button" class="mode-btn" data-value="chordBuild">
+              <span class="mode-name">Build the Chord</span>
+              <span class="mode-blurb">A chord name appears. Click the notes that build it.</span>
+              <span class="mode-skill">Chord theory</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="field">
+          <span class="field-label" id="difficulty-label">Difficulty</span>
+          <div class="toggle-group" id="difficulty-group" role="group" aria-labelledby="difficulty-label">
+            <button type="button" class="toggle-btn" data-value="easy">Easy</button>
+            <button type="button" class="toggle-btn" data-value="medium">Medium</button>
+            <button type="button" class="toggle-btn" data-value="hard">Hard</button>
+          </div>
+          <p class="field-note" id="pool-summary" aria-live="polite"></p>
+        </div>
+
+        <div class="field">
+          <span class="field-label" id="length-type-label">Session length</span>
+          <div class="toggle-group" id="length-type-group" role="group" aria-labelledby="length-type-label">
+            <button type="button" class="toggle-btn" data-value="count">Questions</button>
+            <button type="button" class="toggle-btn" data-value="timed">Timed</button>
+          </div>
+          <div class="toggle-group toggle-group--sub" id="length-value-group" role="group" aria-label="How many"></div>
+        </div>
+
+        <div class="field">
+          <span class="field-label" id="sound-label">Sound</span>
+          <div class="sound-row" role="group" aria-labelledby="sound-label">
+            <label class="volume-label" for="volume">Volume</label>
+            <input type="range" id="volume" min="0" max="100" step="1" value="70">
+            <span class="volume-value" id="volume-value">70%</span>
+            <button type="button" class="btn btn-ghost" id="test-sound-btn">Test sound</button>
+          </div>
+          <label class="checkbox-row">
+            <input type="checkbox" id="shortcut-labels" checked>
+            <span>Show keyboard shortcut letters on the keys</span>
+          </label>
+        </div>
+
+        <p class="stat-line" id="stat-line" aria-live="polite"></p>
+
+        <button type="button" id="start-btn" class="btn btn-primary btn-large">Start</button>
+      </div>
+    </section>
+
+    <!-- ---------------- Question ---------------- -->
+    <section id="screen-question" class="screen hidden">
+      <div class="play-header">
+        <span class="progress" id="progress-indicator" aria-live="polite"></span>
+        <span class="streak" id="streak-indicator" aria-live="polite"></span>
+        <button type="button" id="quit-btn" class="btn btn-ghost btn-small">Quit</button>
+      </div>
+      <div class="timer-bar hidden" id="timer-bar" aria-hidden="true"><span id="timer-fill"></span></div>
+
+      <div class="panel panel--wide">
+        <p class="prompt-question" id="prompt-question"></p>
+        <p class="chord-name hidden" id="prompt-chord"></p>
+
+        <div class="audio-controls" id="audio-controls">
+          <button type="button" class="btn btn-play" id="replay-btn">
+            <span aria-hidden="true">▶</span> Replay <kbd>Space</kbd>
+          </button>
+          <button type="button" class="btn btn-ghost" id="reference-btn">
+            <span aria-hidden="true">♪</span> Reference <kbd>R</kbd>
+          </button>
+          <div class="toggle-group toggle-group--sub hidden" id="style-group" role="group" aria-label="Chord playback style">
+            <button type="button" class="toggle-btn" data-value="block">Block</button>
+            <button type="button" class="toggle-btn" data-value="arpeggio">Arpeggio</button>
+          </div>
+        </div>
+
+        <div id="keyboard"></div>
+
+        <p class="key-legend hidden" id="key-legend" aria-hidden="true">
+          <span class="legend-item legend-correct">✓ correct</span>
+          <span class="legend-item legend-wrong">✕ your pick</span>
+          <span class="legend-item legend-missed">+ missed</span>
+        </p>
+
+        <p class="selection-counter" id="selection-counter" aria-live="polite"></p>
+
+        <div class="play-actions" id="play-actions">
+          <button type="button" class="btn btn-primary btn-large" id="check-btn">Check <kbd>Enter</kbd></button>
+        </div>
+
+        <div class="feedback hidden" id="feedback" aria-live="polite">
+          <p class="feedback-status" id="feedback-status"></p>
+          <p class="feedback-answer" id="feedback-answer"></p>
+          <p class="feedback-teach" id="feedback-teach"></p>
+          <button type="button" class="btn btn-primary btn-large" id="next-btn">Next <kbd>Enter</kbd></button>
+        </div>
+      </div>
+
+      <div class="legend-card" id="shortcut-legend">
+        <p class="legend-title">Keyboard shortcuts</p>
+        <p class="legend-body">
+          <kbd>A</kbd><kbd>W</kbd><kbd>S</kbd><kbd>E</kbd><kbd>D</kbd><kbd>F</kbd><kbd>T</kbd><kbd>G</kbd><kbd>Y</kbd><kbd>H</kbd><kbd>U</kbd><kbd>J</kbd>
+          play C through B — accidentals sit on the row above their white keys.
+          <kbd>Space</kbd> replays, <kbd>R</kbd> plays the reference, <kbd>Enter</kbd> checks and advances.
+        </p>
+        <button type="button" class="btn btn-ghost btn-small" id="dismiss-legend-btn">Got it</button>
+      </div>
+    </section>
+
+    <!-- ---------------- Results ---------------- -->
+    <section id="screen-results" class="screen hidden">
+      <div class="panel">
+        <h2 class="panel-title">Session complete</h2>
+        <div class="results-summary" id="results-summary"></div>
+        <p class="most-missed" id="most-missed"></p>
+        <div class="results-actions">
+          <button type="button" class="btn btn-primary btn-large" id="play-again-btn">Play again</button>
+          <button type="button" class="btn btn-ghost btn-large" id="new-session-btn">New session</button>
+        </div>
+      </div>
+
+      <div class="panel panel--wide review-panel">
+        <h3 class="panel-title panel-title--small">Question review</h3>
+        <ul class="review-list" id="review-list"></ul>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <p>Part of the Fantastic App Suite —
+      <a href="https://brenopaiva.com/" >brenopaiva.com</a></p>
+  </footer>
+
+  <div class="modal-overlay hidden" id="quit-modal">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="quit-modal-title">
+      <h2 id="quit-modal-title">Quit this session?</h2>
+      <p>Your progress won't be saved.</p>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" id="quit-cancel-btn">Keep playing</button>
+        <button type="button" class="btn btn-danger" id="quit-confirm-btn">Quit</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./js/main.js"></script>
+</body>
+</html>

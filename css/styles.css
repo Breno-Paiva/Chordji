@@ -1,0 +1,888 @@
+/* Chordji — skinned to match brenopaiva.com (spec §10).
+   Chordji is a separate repo, so the portfolio's palette tokens are copied
+   here verbatim rather than imported. Single theme, no dark mode: the
+   portfolio has none and Chordji should look like it belongs. */
+
+:root {
+  --primary-0: #809EC0;
+  --primary-1: #CADFF7;
+  --primary-2: #A3C1E1;
+  --primary-3: #647F9D;
+  --primary-4: #39516B;
+  --secondary-1-0: #ABE692;
+  --secondary-1-1: #D9FCCA;
+  --secondary-1-2: #C0F3AB;
+  --secondary-1-3: #96CF7E;
+  --secondary-1-4: #5B8C46;
+  --secondary-2-0: #A183C5;
+  --secondary-2-1: #DFCBF8;
+  --secondary-2-2: #C1A5E3;
+  --secondary-2-3: #8368A3;
+  --secondary-2-4: #533B6F;
+
+  /* The site has no red. These two are tuned to the saturation and softness
+     of the ramps above so they read as a missing member of the same family
+     rather than a bootstrap red (spec §10). */
+  --wrong-0: #E08585;
+  --wrong-1: #A34B4B;
+
+  --ink: #14202c;
+  --key-white: #FAF7F0;
+  --key-outline: #1a1a1a;
+  --panel-radius-x: 140px;
+  --panel-radius-y: 44px;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  overflow-x: hidden;
+}
+
+body {
+  margin: 0;
+  min-height: 100%;
+  background: var(--primary-2);
+  color: var(--ink);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.hidden { display: none !important; }
+
+a { color: var(--ink); }
+
+kbd {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.72em;
+  padding: 1px 5px;
+  border: 1px solid var(--primary-4);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.55);
+  color: var(--primary-4);
+  white-space: nowrap;
+}
+
+/* ---------- Nav + header (spec §10) ---------- */
+
+.site-nav {
+  background: var(--primary-4);
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.35);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.nav-inner {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 20px;
+  height: 55px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.nav-brand {
+  color: var(--secondary-1-0);
+  font-family: 'VT323', monospace;
+  font-size: 26px;
+  letter-spacing: 1px;
+}
+
+.nav-back {
+  color: white;
+  text-decoration: none;
+  font-size: 15px;
+}
+.nav-back:hover { color: var(--secondary-1-0); }
+
+.space-header {
+  background: var(--primary-4);
+  padding: 34px 20px 30px;
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.text-header {
+  margin: 0;
+  text-align: center;
+  font-family: 'VT323', monospace;
+  font-weight: normal;
+  font-size: clamp(44px, 12vw, 80px);
+  line-height: 1;
+  color: var(--secondary-1-0);
+  letter-spacing: clamp(3px, 1.4vw, 10px);
+  text-shadow: -3px 0 #222, 0 3px #222, 3px 0 #222, 0 -3px #222;
+}
+
+.tagline {
+  margin: 14px 0 0;
+  color: var(--primary-1);
+  letter-spacing: 2px;
+  font-size: 15px;
+  text-align: center;
+}
+
+/* While a question is up the title band collapses so the keyboard sits
+   above the fold on a phone. */
+body.is-playing .space-header { padding: 12px 20px 14px; }
+body.is-playing .text-header { font-size: clamp(26px, 7vw, 38px); letter-spacing: clamp(2px, 1vw, 6px); }
+body.is-playing .tagline { display: none; }
+
+.site-footer {
+  margin-top: 40px;
+  background: var(--primary-4);
+  color: var(--primary-1);
+  text-align: center;
+  padding: 18px 20px;
+  font-size: 14px;
+}
+.site-footer a { color: var(--secondary-1-0); }
+
+/* ---------- Layout ---------- */
+
+.app {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 28px 16px 8px;
+}
+
+.screen {
+  display: flex;
+  flex-flow: column;
+  gap: 22px;
+}
+
+/* Panels use the portfolio's .tv card treatment. The radius is given in
+   absolute units rather than 50% / 10% so a 900px panel keeps the same
+   curvature a 300px project card has, instead of collapsing into a lens. */
+.panel {
+  background: var(--secondary-2-2);
+  border: 2px solid var(--secondary-2-3);
+  border-radius: var(--panel-radius-x) / var(--panel-radius-y);
+  box-shadow: 0 1px 13px 1px rgba(0, 0, 0, 0.28);
+  padding: 40px clamp(24px, 5vw, 48px);
+  display: flex;
+  flex-flow: column;
+  gap: 22px;
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.panel--wide { max-width: 100%; }
+
+.panel-title {
+  margin: 0;
+  font-family: 'VT323', monospace;
+  font-weight: normal;
+  font-size: clamp(30px, 5vw, 40px);
+  text-align: center;
+  color: white;
+  text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+  letter-spacing: 1px;
+}
+
+.panel-title--small { font-size: clamp(24px, 4vw, 30px); }
+
+/* ---------- Buttons (the .project-links h3 treatment) ---------- */
+
+.btn {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 16px;
+  color: var(--ink);
+  background: var(--primary-1);
+  border: 2px solid var(--primary-0);
+  border-radius: 20px;
+  padding: 10px 18px;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.08s ease;
+}
+
+.btn:hover:not(:disabled) { background: white; }
+.btn:active:not(:disabled) { transform: translateY(2px); }
+
+.btn:focus-visible,
+.toggle-btn:focus-visible,
+.mode-btn:focus-visible,
+.key:focus-visible,
+input:focus-visible {
+  outline: 3px solid var(--secondary-2-4);
+  outline-offset: 2px;
+}
+
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: var(--secondary-1-1);
+  border: 2px solid var(--secondary-1-0);
+  font-size: 20px;
+}
+.btn-primary:hover:not(:disabled) { background: var(--secondary-1-2); }
+
+.btn-play {
+  background: var(--secondary-1-1);
+  border: 2px solid var(--secondary-1-0);
+}
+.btn-play:hover:not(:disabled) { background: var(--secondary-1-2); }
+
+.btn-ghost {
+  background: rgba(255, 255, 255, 0.5);
+  border: 2px solid var(--secondary-2-3);
+}
+.btn-ghost:hover:not(:disabled) { background: rgba(255, 255, 255, 0.8); }
+
+.btn-danger {
+  background: var(--wrong-0);
+  border: 2px solid var(--wrong-1);
+  color: #2b1010;
+}
+.btn-danger:hover:not(:disabled) { background: #eb9b9b; }
+
+.btn-large {
+  font-size: clamp(20px, 3.4vw, 24px);
+  padding: 13px 30px;
+  align-self: center;
+}
+
+.btn-small { font-size: 14px; padding: 6px 14px; }
+
+.btn-icon {
+  padding: 6px 12px;
+  border-radius: 14px;
+  font-size: 15px;
+}
+
+/* ---------- Setup screen ---------- */
+
+.field {
+  display: flex;
+  flex-flow: column;
+  gap: 10px;
+}
+
+.field-label {
+  font-family: 'VT323', monospace;
+  font-size: 26px;
+  color: var(--secondary-2-4);
+  letter-spacing: 1px;
+}
+
+.field-note {
+  margin: 0;
+  font-size: 14px;
+  color: var(--secondary-2-4);
+}
+
+.mode-group {
+  display: grid;
+  gap: 10px;
+}
+
+.mode-btn {
+  font-family: 'Share Tech Mono', monospace;
+  text-align: left;
+  display: grid;
+  gap: 3px;
+  background: rgba(255, 255, 255, 0.5);
+  border: 2px solid var(--secondary-2-3);
+  border-radius: 18px;
+  padding: 12px 16px;
+  cursor: pointer;
+  color: var(--ink);
+  transition: background 0.15s ease, transform 0.08s ease;
+}
+.mode-btn:hover { background: rgba(255, 255, 255, 0.8); }
+.mode-btn.active {
+  background: var(--secondary-1-1);
+  border-color: var(--secondary-1-4);
+  box-shadow: inset 0 0 0 2px var(--secondary-1-0);
+}
+
+.mode-name {
+  font-family: 'VT323', monospace;
+  font-size: 26px;
+  line-height: 1.1;
+}
+.mode-blurb { font-size: 14px; }
+.mode-skill {
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--secondary-2-4);
+}
+.mode-btn.active .mode-skill { color: var(--secondary-1-4); }
+
+.toggle-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.toggle-btn {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 16px;
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.5);
+  border: 2px solid var(--secondary-2-3);
+  border-radius: 20px;
+  padding: 8px 20px;
+  cursor: pointer;
+  flex: 1 1 auto;
+  transition: background 0.15s ease, transform 0.08s ease;
+}
+.toggle-btn:hover { background: rgba(255, 255, 255, 0.8); }
+.toggle-btn:active { transform: translateY(2px); }
+.toggle-btn.active {
+  background: var(--secondary-1-1);
+  border-color: var(--secondary-1-4);
+  box-shadow: inset 0 0 0 2px var(--secondary-1-0);
+}
+
+.toggle-group--sub .toggle-btn { font-size: 15px; padding: 6px 16px; }
+
+.sound-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.volume-label { font-size: 14px; }
+
+#volume {
+  flex: 1 1 140px;
+  accent-color: var(--secondary-2-4);
+  min-width: 120px;
+}
+
+.volume-value {
+  font-size: 14px;
+  min-width: 44px;
+}
+
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  cursor: pointer;
+}
+.checkbox-row input { accent-color: var(--secondary-2-4); width: 18px; height: 18px; }
+
+.stat-line {
+  margin: 0;
+  text-align: center;
+  font-size: 15px;
+  color: var(--secondary-2-4);
+}
+
+/* ---------- Question screen ---------- */
+
+.play-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  max-width: 100%;
+}
+
+.progress {
+  font-family: 'VT323', monospace;
+  font-size: 26px;
+  color: var(--primary-4);
+}
+
+.streak { font-size: 18px; }
+
+.timer-bar {
+  height: 8px;
+  background: rgba(57, 81, 107, 0.25);
+  border: 2px solid var(--primary-4);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-top: -12px;
+}
+
+.timer-bar span {
+  display: block;
+  height: 100%;
+  width: 100%;
+  background: var(--secondary-1-0);
+  transition: width 0.9s linear;
+}
+
+.timer-bar.is-low span { background: var(--wrong-0); }
+
+.prompt-question {
+  margin: 0;
+  text-align: center;
+  font-family: 'VT323', monospace;
+  font-size: clamp(26px, 4.4vw, 34px);
+  color: white;
+  text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+  letter-spacing: 1px;
+}
+
+.chord-name {
+  margin: 0;
+  text-align: center;
+  font-family: 'VT323', monospace;
+  font-size: clamp(52px, 13vw, 92px);
+  line-height: 1;
+  color: var(--secondary-1-0);
+  letter-spacing: clamp(2px, 1vw, 6px);
+  text-shadow: -3px 0 #222, 0 3px #222, 3px 0 #222, 0 -3px #222;
+}
+
+.audio-controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.selection-counter {
+  margin: 0;
+  text-align: center;
+  font-size: 15px;
+  color: var(--secondary-2-4);
+  min-height: 1.5em;
+}
+
+.play-actions {
+  display: flex;
+  justify-content: center;
+}
+
+/* ---------- Piano keyboard (spec §8) ---------- */
+
+.keyboard {
+  width: 100%;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.keyboard-keys {
+  position: relative;
+  display: flex;
+  height: clamp(158px, 30vw, 210px);
+  background: var(--key-outline);
+  border: 3px solid var(--key-outline);
+  border-radius: 6px 6px 10px 10px;
+  box-shadow: 0 4px 0 0 rgba(0, 0, 0, 0.35);
+}
+
+.key {
+  position: relative;
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 2px 9px;
+  font-family: 'Share Tech Mono', monospace;
+  border: 3px solid var(--key-outline);
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: background 0.12s ease, transform 0.06s ease;
+}
+
+.key--white {
+  background: var(--key-white);
+  color: var(--ink);
+  border-radius: 0 0 7px 7px;
+  height: 100%;
+}
+
+.key--black {
+  position: absolute;
+  top: 0;
+  height: 62%;
+  background: var(--primary-4);
+  color: #E8EEF5;
+  border-radius: 0 0 6px 6px;
+  z-index: 2;
+  padding: 5px 1px 7px;
+}
+
+.key:active:not(:disabled),
+.key.is-pressed {
+  transform: translateY(2px);
+}
+
+.key:hover:not(:disabled) { filter: brightness(1.06); }
+
+.key:disabled { cursor: default; }
+
+.key-name {
+  font-size: clamp(12px, 2.6vw, 15px);
+  letter-spacing: 0.5px;
+  pointer-events: none;
+}
+.key--black .key-name { font-size: clamp(10px, 2.1vw, 12px); }
+
+.key-shortcut {
+  font-size: clamp(9px, 1.9vw, 11px);
+  opacity: 0.42;
+  letter-spacing: 0.5px;
+  pointer-events: none;
+}
+
+.key--black .key-shortcut { opacity: 0.62; }
+
+.keyboard.hide-shortcuts .key-shortcut { visibility: hidden; }
+
+.key-mark {
+  font-size: clamp(15px, 3.4vw, 21px);
+  line-height: 1;
+  font-weight: bold;
+  pointer-events: none;
+}
+
+/* Selected: chord modes toggle keys on and they stay lit. */
+.key--white.is-selected { background: var(--secondary-2-1); }
+.key--black.is-selected { background: var(--secondary-2-2); color: var(--ink); }
+
+/* Feedback states — always paired with a glyph in .key-mark, never colour
+   alone (spec §8). */
+.key--white.is-correct { background: var(--secondary-1-1); }
+.key--black.is-correct { background: var(--secondary-1-3); color: var(--ink); }
+.key.is-correct { border-color: var(--secondary-1-4); }
+
+.key--white.is-wrong { background: var(--wrong-0); }
+.key--black.is-wrong { background: var(--wrong-1); color: #fff; }
+.key.is-wrong { border-color: var(--wrong-1); }
+
+/* Missed reads differently from both: striped and dashed, not just a colour. */
+.key.is-missed {
+  border-style: dashed;
+  border-color: var(--secondary-2-4);
+  background-image: repeating-linear-gradient(
+    45deg,
+    transparent 0 6px,
+    rgba(83, 59, 111, 0.28) 6px 12px
+  );
+}
+.key--white.is-missed { background-color: var(--secondary-2-1); }
+.key--black.is-missed { background-color: var(--secondary-2-2); color: var(--ink); }
+
+/* The visual counterpart to a note sounding. Each layer lifts only within
+   its own row: a flashing white key must never paint over the black keys
+   sitting on top of it. */
+.key.is-sounding { animation: key-pulse 0.34s ease-out; }
+.key--white.is-sounding { z-index: 1; }
+.key--black.is-sounding { z-index: 3; }
+
+@keyframes key-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(171, 230, 146, 0.95); }
+  100% { box-shadow: 0 0 0 14px rgba(171, 230, 146, 0); }
+}
+
+.key-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 14px;
+  margin: 0;
+  font-size: 13px;
+  color: var(--secondary-2-4);
+}
+.legend-correct { color: var(--secondary-1-4); }
+.legend-wrong { color: var(--wrong-1); }
+.legend-missed { color: var(--secondary-2-4); }
+
+/* ---------- Feedback (inline, spec §9.3) ---------- */
+
+.feedback {
+  display: flex;
+  flex-flow: column;
+  gap: 10px;
+  align-items: center;
+  text-align: center;
+  padding: 18px;
+  border-radius: 22px;
+  border: 2px solid var(--secondary-2-3);
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.feedback--correct {
+  background: var(--secondary-1-1);
+  border-color: var(--secondary-1-4);
+  animation: soft-pulse 0.45s ease-out;
+}
+
+@keyframes soft-pulse {
+  0% { transform: scale(0.985); box-shadow: 0 0 0 0 rgba(91, 140, 70, 0.5); }
+  100% { transform: scale(1); box-shadow: 0 0 0 16px rgba(91, 140, 70, 0); }
+}
+
+.feedback--incorrect {
+  background: var(--wrong-0);
+  border-color: var(--wrong-1);
+}
+
+.feedback-status {
+  margin: 0;
+  font-family: 'VT323', monospace;
+  font-size: clamp(28px, 5vw, 38px);
+  letter-spacing: 1px;
+}
+
+.feedback-answer { margin: 0; font-size: 17px; }
+.feedback-teach { margin: 0; font-size: 15px; font-style: italic; }
+
+.shake { animation: shake 0.36s ease-in-out; }
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-7px); }
+  40% { transform: translateX(7px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+
+/* ---------- Shortcut legend ---------- */
+
+.legend-card {
+  background: var(--primary-1);
+  border: 2px solid var(--primary-0);
+  border-radius: 22px;
+  padding: 14px 18px;
+  display: flex;
+  flex-flow: column;
+  gap: 8px;
+  align-items: flex-start;
+  font-size: 14px;
+}
+
+.legend-title {
+  margin: 0;
+  font-family: 'VT323', monospace;
+  font-size: 22px;
+}
+
+.legend-body { margin: 0; line-height: 1.9; }
+.legend-body kbd { margin-right: 2px; }
+
+/* ---------- Results ---------- */
+
+.results-summary {
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.results-accuracy {
+  font-family: 'VT323', monospace;
+  font-size: clamp(64px, 16vw, 104px);
+  line-height: 1;
+  color: var(--secondary-1-0);
+  text-shadow: -3px 0 #222, 0 3px #222, 3px 0 #222, 0 -3px #222;
+}
+
+.results-sub { font-size: 18px; }
+
+.results-chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.chip {
+  background: rgba(255, 255, 255, 0.6);
+  border: 2px solid var(--secondary-2-3);
+  border-radius: 20px;
+  padding: 4px 14px;
+  font-size: 14px;
+}
+
+.most-missed {
+  margin: 0;
+  text-align: center;
+  font-size: 15px;
+  color: var(--secondary-2-4);
+}
+
+.results-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+.results-actions .btn-large { align-self: auto; }
+
+.review-panel {
+  background: var(--primary-1);
+  border-color: var(--primary-0);
+}
+.review-panel .panel-title { color: var(--primary-4); text-shadow: none; }
+
+.review-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-flow: column;
+  gap: 8px;
+}
+
+.review-item {
+  display: grid;
+  grid-template-columns: 28px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border: 2px solid var(--primary-0);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.review-correct { border-color: var(--secondary-1-4); background: var(--secondary-1-1); }
+.review-incorrect {
+  border-color: var(--wrong-1);
+  background: #EBB4B4;
+  background: color-mix(in srgb, var(--wrong-0) 55%, white);
+}
+.review-unanswered { border-color: var(--primary-3); background: rgba(255, 255, 255, 0.45); }
+
+.review-icon {
+  font-size: 20px;
+  text-align: center;
+  font-weight: bold;
+}
+
+.review-body { min-width: 0; }
+
+.review-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.review-title { font-size: 17px; }
+.review-meta { font-size: 12px; opacity: 0.75; }
+.review-detail { font-size: 14px; }
+
+.review-play { background: rgba(255, 255, 255, 0.75); }
+
+/* ---------- Audio notice + modal ---------- */
+
+.audio-notice {
+  display: block;
+  width: calc(100% - 32px);
+  max-width: 640px;
+  margin: 16px auto -8px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 15px;
+  padding: 12px 16px;
+  background: var(--secondary-1-1);
+  border: 2px solid var(--secondary-1-4);
+  border-radius: 20px;
+  cursor: pointer;
+  color: var(--ink);
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 32, 44, 0.72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 200;
+}
+
+.modal-card {
+  background: var(--secondary-2-2);
+  border: 2px solid var(--secondary-2-3);
+  border-radius: 28px;
+  padding: 26px;
+  max-width: 400px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 4px 22px rgba(0, 0, 0, 0.4);
+}
+
+.modal-card h2 {
+  margin: 0 0 8px;
+  font-family: 'VT323', monospace;
+  font-weight: normal;
+  font-size: 32px;
+}
+
+.modal-card p { margin: 0 0 18px; font-size: 15px; }
+
+.modal-actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+/* ---------- Responsive (works from 360px, no horizontal scroll) ---------- */
+
+@media (max-width: 640px) {
+  :root {
+    --panel-radius-x: 84px;
+    --panel-radius-y: 32px;
+  }
+
+  .app { padding: 20px 12px 4px; }
+  .panel { padding: 32px 18px; gap: 18px; }
+  .review-item { grid-template-columns: 22px 1fr auto; padding: 9px 10px; gap: 8px; }
+  .review-title { font-size: 15px; }
+  .toggle-btn { padding: 8px 12px; }
+  .field-label { font-size: 23px; }
+
+  /* White keys must stay a 44px touch target at 360px wide (spec §8), so the
+     keyboard borrows back part of the panel's horizontal padding. */
+  .keyboard {
+    width: calc(100% + 22px);
+    margin-left: -11px;
+    margin-right: -11px;
+  }
+}
+
+/* Shortcut hints are noise on a phone, and dropping them lets Replay and
+   Reference share a row. */
+@media (max-width: 520px) {
+  .audio-controls kbd,
+  .play-actions kbd,
+  .feedback kbd {
+    display: none;
+  }
+}
+
+@media (max-width: 380px) {
+  .btn { font-size: 15px; padding: 9px 14px; }
+  .key-shortcut { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+  .btn:active:not(:disabled),
+  .toggle-btn:active,
+  .key:active:not(:disabled),
+  .key.is-pressed {
+    transform: none;
+  }
+}
