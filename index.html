@@ -111,6 +111,58 @@
         <p class="stat-line" id="stat-line" aria-live="polite"></p>
 
         <button type="button" id="start-btn" class="btn btn-primary btn-large">Start</button>
+
+        <div class="free-play-entry">
+          <button type="button" id="free-play-btn" class="btn btn-ghost btn-large">
+            <span aria-hidden="true">🎹</span> Free play
+          </button>
+          <p class="field-note">No questions, no scoring — just the keyboard, in any octave.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------------- Free play ---------------- -->
+    <section id="screen-freeplay" class="screen hidden">
+      <div class="play-header">
+        <span class="progress">Free play</span>
+        <button type="button" id="free-back-btn" class="btn btn-ghost btn-small">Back</button>
+      </div>
+
+      <div class="panel panel--wide">
+        <div class="octave-row">
+          <button type="button" class="btn btn-ghost octave-btn" id="octave-down-btn" aria-label="Octave down">
+            <span aria-hidden="true">◀</span> <kbd>Z</kbd>
+          </button>
+          <span class="octave-display" id="octave-display" aria-live="polite"></span>
+          <button type="button" class="btn btn-ghost octave-btn" id="octave-up-btn" aria-label="Octave up">
+            <kbd>X</kbd> <span aria-hidden="true">▶</span>
+          </button>
+        </div>
+
+        <div id="free-keyboard"></div>
+
+        <p class="selection-counter" id="free-readout" aria-live="polite"></p>
+
+        <div class="free-tools">
+          <div class="sound-row">
+            <span class="volume-label" id="free-length-label">Note length</span>
+            <div class="toggle-group toggle-group--sub" id="free-sustain-group" role="group" aria-labelledby="free-length-label">
+              <button type="button" class="toggle-btn" data-value="short">Short</button>
+              <button type="button" class="toggle-btn" data-value="long">Long</button>
+            </div>
+          </div>
+          <div class="sound-row">
+            <label class="volume-label" for="free-volume">Volume</label>
+            <input type="range" id="free-volume" min="0" max="100" step="1" value="70">
+            <span class="volume-value" id="free-volume-value">70%</span>
+          </div>
+        </div>
+
+        <p class="key-legend free-legend">
+          <span class="legend-item"><kbd>A</kbd>…<kbd>J</kbd> play the keys</span>
+          <span class="legend-item"><kbd>Z</kbd> / <kbd>X</kbd> shift octave</span>
+          <span class="legend-item"><kbd>Esc</kbd> goes back</span>
+        </p>
       </div>
     </section>
 

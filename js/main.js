@@ -8,15 +8,18 @@ import * as storage from "./storage.js";
 import * as ui from "./ui.js";
 import {
   bothNames,
+  bothNamesWithOctave,
   chordTeachingNote,
   midiForPc,
   noteTeachingNote,
+  octaveOf,
   voicePcs,
 } from "./theory.js";
 
 const els = {
   screens: {
     setup: document.getElementById("screen-setup"),
+    freeplay: document.getElementById("screen-freeplay"),
     question: document.getElementById("screen-question"),
     results: document.getElementById("screen-results"),
   },
@@ -32,6 +35,17 @@ const els = {
   shortcutLabels: document.getElementById("shortcut-labels"),
   statLine: document.getElementById("stat-line"),
   startBtn: document.getElementById("start-btn"),
+  freePlayBtn: document.getElementById("free-play-btn"),
+
+  freeBackBtn: document.getElementById("free-back-btn"),
+  freeKeyboard: document.getElementById("free-keyboard"),
+  freeReadout: document.getElementById("free-readout"),
+  octaveDisplay: document.getElementById("octave-display"),
+  octaveDownBtn: document.getElementById("octave-down-btn"),
+  octaveUpBtn: document.getElementById("octave-up-btn"),
+  freeSustainGroup: document.getElementById("free-sustain-group"),
+  freeVolume: document.getElementById("free-volume"),
+  freeVolumeValue: document.getElementById("free-volume-value"),
 
   progressIndicator: document.getElementById("progress-indicator"),
   streakIndicator: document.getElementById("streak-indicator"),
@@ -76,9 +90,17 @@ const TONIC_DURATION = 1.0;
 const TONIC_GAP = 0.35;
 const PRESS_DURATION = 0.6;
 
+// Free Play (spec §9.5). The octave range stops short of the piano's extremes
+// in both directions: below C2 the voice's sub-oscillator drops under 30 Hz
+// and turns to rumble, above B6 the triangle is pure whistle.
+const MIN_OCTAVE = 2;
+const MAX_OCTAVE = 6;
+const FREE_NOTE_DURATION = { short: 0.7, long: 2.4 };
+
 const settings = storage.loadSettings();
 
 let keyboard = null;
+let freeKeyboard = null;
 let session = null;
 let generator = null;
 let sessionActive = false;
@@ -135,8 +157,13 @@ function showScreen(name) {
     el.classList.toggle("hidden", key !== name);
   });
   // The full title band costs a phone most of its first screen, so it shrinks
-  // out of the keyboard's way while a question is up.
-  document.body.classList.toggle("is-playing", name === "question");
+  // out of the keyboard's way whenever a keyboard is up.
+  document.body.classList.toggle("is-playing", name === "question" || name === "freeplay");
+  // Both keyboards listen for the shortcut row on `document`, so the one that
+  // is off-screen has to be deafened; whichever screen is being entered turns
+  // its own keyboard back on.
+  if (name !== "question" && keyboard) keyboard.setEnabled(false);
+  if (name !== "freeplay" && freeKeyboard) freeKeyboard.setEnabled(false);
   // Start sits at the bottom of a long setup panel; without this the question
   // screen opens halfway down the page.
   window.scrollTo(0, 0);
@@ -216,16 +243,23 @@ const setStyleActive = bindToggleGroup(els.styleGroup, ".toggle-btn", settings.c
   persist();
 });
 
+// One volume, two sliders: the setup screen's and Free Play's own, which is
+// there because Free Play is reachable without passing through setup twice.
 function applyVolume(percent) {
   const value = Math.min(100, Math.max(0, Number(percent)));
   settings.volume = value / 100;
+  const text = `${Math.round(value)}%`;
   els.volume.value = String(value);
-  els.volumeValue.textContent = `${Math.round(value)}%`;
+  els.volumeValue.textContent = text;
+  els.freeVolume.value = String(value);
+  els.freeVolumeValue.textContent = text;
   AudioEngine.setVolume(settings.volume);
 }
 
 els.volume.addEventListener("input", (event) => applyVolume(event.target.value));
 els.volume.addEventListener("change", persist);
+els.freeVolume.addEventListener("input", (event) => applyVolume(event.target.value));
+els.freeVolume.addEventListener("change", persist);
 
 // Worth having before the session starts, so nobody discovers their volume is
 // muted on question 1 (spec §9.1).
@@ -237,6 +271,7 @@ els.testSoundBtn.addEventListener("click", async () => {
 els.shortcutLabels.addEventListener("change", (event) => {
   settings.showShortcuts = event.target.checked;
   if (keyboard) keyboard.setShortcutLabels(settings.showShortcuts);
+  if (freeKeyboard) freeKeyboard.setShortcutLabels(settings.showShortcuts);
   persist();
 });
 
@@ -272,6 +307,70 @@ function updateSelectionState(selection) {
   // selected, so nobody submits a half-built chord by accident (spec §7).
   els.checkBtn.disabled = selection.length < expected;
 }
+
+// ---------- Free play (spec §9.5) ----------
+
+// A second instance rather than a relocated one: the game's keyboard keeps
+// its selection, its marks and its C4 base while Free Play roams octaves.
+freeKeyboard = createKeyboard(els.freeKeyboard, {
+  mode: "free",
+  announceOctave: true,
+  baseMidi: baseMidiFor(settings.freeOctave),
+  onKeyPress: (pc, midi) => {
+    AudioEngine.playNote(midi, { duration: FREE_NOTE_DURATION[settings.freeNoteLength] });
+    freeKeyboard.flash(pc);
+    els.freeReadout.textContent = bothNamesWithOctave(pc, octaveOf(midi));
+  },
+});
+
+function baseMidiFor(octave) {
+  return (octave + 1) * 12; // C4 is MIDI 60
+}
+
+function renderOctave() {
+  const octave = settings.freeOctave;
+  freeKeyboard.setBaseMidi(baseMidiFor(octave));
+  els.octaveDisplay.textContent = `Octave ${octave} · C${octave}–B${octave}`;
+  els.octaveDownBtn.disabled = octave <= MIN_OCTAVE;
+  els.octaveUpBtn.disabled = octave >= MAX_OCTAVE;
+}
+
+// Notes already ringing are left alone: they were played in the old octave
+// and cutting them off mid-decay sounds like a fault, not a control.
+function shiftOctave(delta) {
+  const next = Math.min(MAX_OCTAVE, Math.max(MIN_OCTAVE, settings.freeOctave + delta));
+  if (next === settings.freeOctave) return;
+  settings.freeOctave = next;
+  renderOctave();
+  els.freeReadout.textContent = `Octave ${next}`;
+  persist();
+}
+
+bindToggleGroup(els.freeSustainGroup, ".toggle-btn", settings.freeNoteLength, (value) => {
+  settings.freeNoteLength = value;
+  persist();
+});
+
+els.octaveDownBtn.addEventListener("click", () => shiftOctave(-1));
+els.octaveUpBtn.addEventListener("click", () => shiftOctave(1));
+
+async function enterFreePlay() {
+  showScreen("freeplay");
+  freeKeyboard.setShortcutLabels(settings.showShortcuts);
+  freeKeyboard.setEnabled(true);
+  renderOctave();
+  els.freeReadout.textContent = "Play a key";
+  await ensureAudio();
+}
+
+function leaveFreePlay() {
+  stopAudio();
+  showScreen("setup");
+  updateSetupInfo();
+}
+
+els.freePlayBtn.addEventListener("click", () => enterFreePlay());
+els.freeBackBtn.addEventListener("click", leaveFreePlay);
 
 // ---------- Question playback ----------
 
@@ -652,6 +751,27 @@ document.addEventListener("keydown", (event) => {
     return;
   }
   if (!els.quitModal.classList.contains("hidden")) return;
+
+  const field = document.activeElement;
+  const typing =
+    field instanceof HTMLElement &&
+    (field.tagName === "INPUT" || field.tagName === "TEXTAREA" || field.isContentEditable);
+
+  if (!els.screens.freeplay.classList.contains("hidden")) {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      leaveFreePlay();
+      return;
+    }
+    // The note keys are the keyboard component's; only the octave is ours.
+    const shift = { z: -1, x: 1 }[event.key.toLowerCase()];
+    if (shift && !typing) {
+      event.preventDefault();
+      shiftOctave(shift);
+    }
+    return;
+  }
+
   if (els.screens.question.classList.contains("hidden")) return;
 
   const active = document.activeElement;
@@ -685,6 +805,9 @@ document.addEventListener("keydown", (event) => {
 applyVolume(Math.round(settings.volume * 100));
 els.shortcutLabels.checked = settings.showShortcuts;
 keyboard.setShortcutLabels(settings.showShortcuts);
+freeKeyboard.setShortcutLabels(settings.showShortcuts);
+settings.freeOctave = Math.min(MAX_OCTAVE, Math.max(MIN_OCTAVE, Number(settings.freeOctave) || 4));
+renderOctave();
 renderLengthValues();
 updateSetupInfo();
 updateSelectionState([]);

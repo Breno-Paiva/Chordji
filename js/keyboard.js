@@ -1,8 +1,20 @@
 // The piano keyboard component (spec §8). One octave, real <button>
-// elements, shared by all three modes. It owns selection and the six visual
-// states; it does not know what a question is or whether an answer is right.
+// elements, shared by all three modes and by Free Play. It owns selection and
+// the six visual states; it does not know what a question is or whether an
+// answer is right.
+//
+// The octave it *sounds* is the caller's business: the component reports the
+// pitch class it always has, plus the MIDI note that pitch class maps to at
+// the current base. The game leaves the base at C4; Free Play moves it.
 
-import { keyLabel, ariaNoteName, isBlackKey, pitchClass } from "./theory.js";
+import {
+  KEYBOARD_BASE_MIDI,
+  keyLabel,
+  ariaNoteName,
+  isBlackKey,
+  octaveOf,
+  pitchClass,
+} from "./theory.js";
 
 // The DAW-standard row: accidentals sit on the upper row directly above
 // their white keys, so the hand shape matches a real keyboard (spec §8).
@@ -26,9 +38,18 @@ const MARKS = { correct: "✓", wrong: "✕", missed: "+" };
 const MARK_WORDS = { correct: "correct", wrong: "your wrong pick", missed: "missed note" };
 
 export function createKeyboard(container, options = {}) {
-  const { onKeyPress, onSelectionChange, mode = "single" } = options;
+  const {
+    onKeyPress,
+    onSelectionChange,
+    mode = "single",
+    baseMidi = KEYBOARD_BASE_MIDI,
+    // Free Play moves between octaves, so its keys have to say which one they
+    // are on; the game's single octave would only be noise.
+    announceOctave = false,
+  } = options;
 
   let selectMode = mode;
+  let base = baseMidi;
   let selection = [];
   let enabled = true;
   let destroyed = false;
@@ -49,7 +70,7 @@ export function createKeyboard(container, options = {}) {
     btn.className = `key ${isBlackKey(pc) ? "key--black" : "key--white"}`;
     btn.dataset.pc = String(pc);
     btn.setAttribute("aria-pressed", "false");
-    btn.setAttribute("aria-label", ariaNoteName(pc));
+    btn.setAttribute("aria-label", noteAria(pc));
 
     const label = document.createElement("span");
     label.className = "key-name";
@@ -91,6 +112,25 @@ export function createKeyboard(container, options = {}) {
 
   container.appendChild(keysWrap);
 
+  // ---------- Labels ----------
+
+  function midiFor(pc) {
+    return base + pitchClass(pc);
+  }
+
+  function noteAria(pc) {
+    const name = ariaNoteName(pc);
+    return announceOctave ? `${name}, octave ${octaveOf(midiFor(pc))}` : name;
+  }
+
+  function refreshLabels() {
+    keys.forEach((btn, pc) => {
+      // Only the untouched keys: a marked key's label belongs to markResult.
+      if (btn.querySelector(".key-mark").textContent) return;
+      btn.setAttribute("aria-label", noteAria(pc));
+    });
+  }
+
   // ---------- Selection ----------
 
   function syncSelectionAttrs() {
@@ -104,19 +144,25 @@ export function createKeyboard(container, options = {}) {
   function press(pc) {
     if (!enabled || destroyed) return;
 
-    if (selectMode === "single") {
-      selection = [pc];
-    } else if (selection.includes(pc)) {
-      selection = selection.filter((p) => p !== pc);
-    } else {
-      selection = [...selection, pc].sort((a, b) => a - b);
+    // Free Play has nothing to submit, so a press there is a note and nothing
+    // else — keys must not latch on the way a chord answer does.
+    if (selectMode !== "free") {
+      if (selectMode === "single") {
+        selection = [pc];
+      } else if (selection.includes(pc)) {
+        selection = selection.filter((p) => p !== pc);
+      } else {
+        selection = [...selection, pc].sort((a, b) => a - b);
+      }
+      syncSelectionAttrs();
     }
 
-    syncSelectionAttrs();
     // The keyboard is playable: pressing a key always sounds it, which is how
     // a player checks a guess against the reference (spec §8).
-    if (typeof onKeyPress === "function") onKeyPress(pc);
-    if (typeof onSelectionChange === "function") onSelectionChange(getSelection());
+    if (typeof onKeyPress === "function") onKeyPress(pc, midiFor(pc));
+    if (selectMode !== "free" && typeof onSelectionChange === "function") {
+      onSelectionChange(getSelection());
+    }
   }
 
   function getSelection() {
@@ -128,6 +174,8 @@ export function createKeyboard(container, options = {}) {
   function onDocumentKeyDown(event) {
     if (!enabled || destroyed) return;
     if (event.metaKey || event.ctrlKey || event.altKey) return;
+    // A held key would otherwise machine-gun the note at the OS repeat rate.
+    if (event.repeat) return;
 
     const target = event.target;
     if (target instanceof HTMLElement) {
@@ -161,6 +209,17 @@ export function createKeyboard(container, options = {}) {
       if (typeof onSelectionChange === "function") onSelectionChange(getSelection());
     },
 
+    // The MIDI note the leftmost key (C) sounds. Pitch classes, and therefore
+    // selection and marks, are unaffected.
+    setBaseMidi(next) {
+      base = next;
+      refreshLabels();
+    },
+
+    getBaseMidi() {
+      return base;
+    },
+
     getSelection,
 
     setSelection(pcs) {
@@ -192,7 +251,7 @@ export function createKeyboard(container, options = {}) {
           if (!btn) return;
           btn.classList.add(`is-${state}`);
           btn.querySelector(".key-mark").textContent = MARKS[state];
-          btn.setAttribute("aria-label", `${ariaNoteName(pc)} — ${MARK_WORDS[state]}`);
+          btn.setAttribute("aria-label", `${noteAria(pc)} — ${MARK_WORDS[state]}`);
         });
       };
       apply(correct, "correct");
@@ -204,7 +263,7 @@ export function createKeyboard(container, options = {}) {
       keys.forEach((btn, pc) => {
         btn.classList.remove("is-correct", "is-wrong", "is-missed", "is-sounding", "is-pressed");
         btn.querySelector(".key-mark").textContent = "";
-        btn.setAttribute("aria-label", ariaNoteName(pc));
+        btn.setAttribute("aria-label", noteAria(pc));
       });
       soundingTimers.forEach((id) => clearTimeout(id));
       soundingTimers.clear();

@@ -364,6 +364,26 @@ The centerpiece of the UI, shared by all three modes.
 - Buttons: **Play Again** (same settings) / **New Session** (back to setup).
 - Session saved to localStorage history here — not on quit.
 
+### 9.5 Free Play — the keyboard with the game switched off
+
+Reached from a secondary button under **Start** on the setup screen, and left
+by **Back** or `Esc`. No questions, no scoring, nothing written to history.
+
+- The same one-octave keyboard component, in a third select mode: a press
+  sounds the note and nothing latches, because there is no answer to submit.
+- **Octave control** — `◀`/`▶` buttons and `Z`/`X`, showing the current range
+  as *Octave 4 · C4–B4*. Range **C2–B6**: outside it the synth voice stops
+  sounding like an instrument (the sub-oscillator drops under 30 Hz below C2,
+  the triangle is pure whistle above B6). The choice persists.
+- A readout under the keyboard names the note last played, with both
+  spellings and the octave — `C♯4 / D♭4`.
+- **Note length** short/long, because the game's staccato 0.7 s note is not
+  something you would want to play a tune with.
+- Its own volume slider: Free Play is reachable without a second trip through
+  the setup screen.
+- Octave lives in Free Play only. The game still sounds and answers in one
+  fixed octave from C4 (§4.1) — pitch classes stay the unit of an answer.
+
 ---
 
 ## 10. Visual design — brenopaiva.com aesthetic

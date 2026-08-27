@@ -16,6 +16,8 @@ export const DEFAULT_SETTINGS = {
   difficulty: "easy",
   lengthType: "count", // 'count' | 'timed'
   lengthValue: 10,
+  freeOctave: 4, // Free Play only — the game always sounds C4
+  freeNoteLength: "short", // 'short' | 'long'
 };
 
 function read(key, fallback) {

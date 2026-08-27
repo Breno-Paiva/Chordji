@@ -49,6 +49,20 @@ export function bothNames(pc) {
   return isBlackKey(p) ? `${SHARP_NAMES[p]} / ${FLAT_NAMES[p]}` : SHARP_NAMES[p];
 }
 
+// Scientific pitch notation: MIDI 60 is C4, so the octave number turns over
+// at every C. Only Free Play needs it — the game's answers are pitch classes.
+export function octaveOf(midi) {
+  return Math.floor(midi / 12) - 1;
+}
+
+// "C♯4 / D♭4" — bothNames with the octave on each spelling, not just the last.
+export function bothNamesWithOctave(pc, octave) {
+  const p = pitchClass(pc);
+  return isBlackKey(p)
+    ? `${SHARP_NAMES[p]}${octave} / ${FLAT_NAMES[p]}${octave}`
+    : `${SHARP_NAMES[p]}${octave}`;
+}
+
 // ---------- Intervals ----------
 
 export const INTERVAL_NAMES = [

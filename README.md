@@ -24,6 +24,13 @@ Every ear question plays a reference tonic first, so notes are identified by
 Build the Chord plays no audio until feedback, where the theory and the sound
 get wired together.
 
+There is also **Free play**, reached from the button under *Start*: the same
+keyboard with the game switched off — no questions, no scoring, no history.
+It adds an octave control (`◀`/`▶`, or `Z`/`X`) spanning C2–B6, a readout
+naming the note you just played, and a short/long note length. `Esc` goes
+back. Octave is a Free Play idea only: the game itself always sounds and
+answers in one fixed octave from C4, since answers are pitch classes.
+
 ## Difficulty
 
 **Name That Note**
@@ -62,9 +69,11 @@ The DAW-standard row, so accidentals sit directly above their white keys:
 ```
 
 `Space` replays the question, `R` plays the reference tonic, `Enter` checks
-your answer and advances. Every key is also clickable and playable — pressing
-one sounds it, so you can check a guess against the reference. Replays are
-unlimited and free; they are counted in the review but never affect scoring.
+your answer and advances. In Free play, `Z` and `X` shift the octave down and
+up, and `Esc` returns to setup. Every key is also clickable and playable —
+pressing one sounds it, so you can check a guess against the reference.
+Replays are unlimited and free; they are counted in the review but never
+affect scoring.
 
 ## Sound
 
@@ -126,9 +135,9 @@ independent of the UI, which keeps it trivially testable.
 `localStorage` only — no accounts, no analytics, no shared leaderboard.
 `chordji.history` keeps the last 20 sessions, `chordji.best` the best accuracy
 per mode/difficulty/length combination, and `chordji.settings` your volume,
-playback style and last-used setup. Every access is wrapped in `try`/`catch`:
-private-mode browsers throw on `localStorage`, and the game runs fine without
-it.
+playback style, last-used setup and Free Play octave. Every access is wrapped
+in `try`/`catch`: private-mode browsers throw on `localStorage`, and the game
+runs fine without it.
 
 ## Notes on two spec readings
 
